@@ -1,64 +1,53 @@
-# -*- coding: utf-8 -*-
+from stoqlib.domain.exampledata import ExampleCreator
+from stoqlib.domain.person import Branch, LoginUser
+from stoqlib.domain.station import BranchStation
+from storm.store import Store
+
+import pytest
 
 
-def test_bar_fixture(testdir):
+@pytest.mark.parametrize(
+    "fixture_name",
+    ("store", "current_station", "current_user", "current_branch", "example_creator"),
+)
+def test_fixture_are_setup_correctly(testdir, fixture_name):
     """Make sure that pytest accepts our fixture."""
 
     # create a temporary pytest test module
-    testdir.makepyfile("""
-        def test_sth(bar):
-            assert bar == "europython2015"
-    """)
+    code = """
+        def test_iculo({0}):
+            assert {0}
+    """
+    testdir.makepyfile(code.format(fixture_name))
 
     # run pytest with the following cmd args
-    result = testdir.runpytest(
-        '--foo=europython2015',
-        '-v'
-    )
+    result = testdir.runpytest("-v", "--skip-db-setup")
 
     # fnmatch_lines does an assertion internally
-    result.stdout.fnmatch_lines([
-        '*::test_sth PASSED*',
-    ])
+    result.stdout.fnmatch_lines(["*::test_iculo PASSED*"])
 
     # make sure that that we get a '0' exit code for the testsuite
     assert result.ret == 0
 
 
-def test_help_message(testdir):
-    result = testdir.runpytest(
-        '--help',
-    )
-    # fnmatch_lines does an assertion internally
-    result.stdout.fnmatch_lines([
-        'stoq:',
-        '*--foo=DEST_FOO*Set the value for the fixture "bar".',
-    ])
+def test_fixture_store(store):
+    assert isinstance(store, Store)
 
 
-def test_hello_ini_setting(testdir):
-    testdir.makeini("""
-        [pytest]
-        HELLO = world
-    """)
+def test_fixture_current_station(current_station):
+    assert isinstance(current_station, BranchStation)
 
-    testdir.makepyfile("""
-        import pytest
 
-        @pytest.fixture
-        def hello(request):
-            return request.config.getini('HELLO')
+def test_fixture_current_user(current_user):
+    assert isinstance(current_user, LoginUser)
 
-        def test_hello_world(hello):
-            assert hello == 'world'
-    """)
 
-    result = testdir.runpytest('-v')
+def test_fixture_current_branch(current_branch):
+    assert isinstance(current_branch, Branch)
 
-    # fnmatch_lines does an assertion internally
-    result.stdout.fnmatch_lines([
-        '*::test_hello_world PASSED*',
-    ])
 
-    # make sure that that we get a '0' exit code for the testsuite
-    assert result.ret == 0
+def test_fixture_example_creator(example_creator, current_station, current_user, current_branch):
+    assert isinstance(example_creator, ExampleCreator)
+    assert example_creator.current_station == current_station
+    assert example_creator.current_user == current_user
+    assert example_creator.current_branch == current_branch
