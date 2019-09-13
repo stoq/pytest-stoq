@@ -13,7 +13,7 @@ def read(fname):
 
 setup(
     name="pytest-stoq",
-    version="0.1.0",
+    version="0.2.0",
     author="Stoq Team",
     author_email="stoq-devel@async.com.br",
     maintainer="Stoq Team",

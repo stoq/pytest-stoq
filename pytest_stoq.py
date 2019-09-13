@@ -17,6 +17,14 @@ def pytest_addoption(parser):
         default=None,
         help="Run the tests with quick database setup mode.",
     )
+    group.addoption(
+        "--extra-plugins",
+        action="store",
+        dest="extra_plugins",
+        default=None,
+        nargs="+",
+        help="Additional plugins to be installed before running the test suite.",
+    )
 
 
 @pytest.fixture(autouse=True, scope="session")
@@ -42,6 +50,7 @@ def stoq_test_environment(request):
         username=username,
         password=password,
         quick=quick,
+        extra_plugins=request.config.getvalue("extra_plugins"),
     )
 
 

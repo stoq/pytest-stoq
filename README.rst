@@ -24,6 +24,12 @@ You can install "pytest-stoq" via `pip`_ from `PyPI`_::
     $ pip install pytest-stoq
 
 
+Command-line options
+====================
+
+- ``--skip-db-setup``: pytest-stoq won't setup the database (in case you're using a ready test database)
+- ``--extra-plugins``: extra plugins to enable
+
 Fixtures
 ========
 
