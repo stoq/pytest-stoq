@@ -1,53 +1,67 @@
-from stoqlib.domain.exampledata import ExampleCreator
-from stoqlib.domain.person import Branch, LoginUser
-from stoqlib.domain.station import BranchStation
-from storm.store import Store
+from unittest import mock
 
 import pytest
 
-
-@pytest.mark.parametrize(
-    "fixture_name",
-    ("store", "current_station", "current_user", "current_branch", "example_creator"),
-)
-def test_fixture_are_setup_correctly(testdir, fixture_name):
-    """Make sure that pytest accepts our fixture."""
-
-    # create a temporary pytest test module
-    code = """
-        def test_iculo({0}):
-            assert {0}
-    """
-    testdir.makepyfile(code.format(fixture_name))
-
-    # run pytest with the following cmd args
-    result = testdir.runpytest("-v", "--skip-db-setup")
-
-    # fnmatch_lines does an assertion internally
-    result.stdout.fnmatch_lines(["*::test_iculo PASSED*"])
-
-    # make sure that that we get a '0' exit code for the testsuite
-    assert result.ret == 0
+from pytest_stoq.stoq import _install_plugin, _setup_test_environment
 
 
-def test_fixture_store(store):
-    assert isinstance(store, Store)
+@mock.patch('pytest_stoq.stoq.stoqlib.api.new_store')
+@mock.patch('pytest_stoq.stoq.importlib.import_module')
+@mock.patch('pytest_stoq.stoq.get_plugin_manager')
+def test_install_plugin(mock_get_plugin_manager, mock_import_module, mock_new_store):
+    mock_store = mock_new_store.return_value.__enter__.return_value
+    mock_plugin_manager = mock_get_plugin_manager.return_value
+    mock_plugin = mock.Mock()
+    mock_plugin.name = 'pluginho'
+    mock_import_module.return_value = mock.Mock(
+        __file__='/path/to/pluginho/pluginho.py', pluginho=mock_plugin,
+    )
+
+    assert _install_plugin('plugin.pluginho') is None
+
+    mock_get_plugin_manager.assert_called_once_with()
+    mock_plugin_manager.register_plugin_description.assert_called_once_with('pluginho/pluginho.plugin')
+    mock_plugin_manager.install_plugin.assert_called_once_with(mock_store, 'pluginho')
+    mock_plugin_manager.activate_plugin.assert_called_once_with('pluginho')
 
 
-def test_fixture_current_station(current_station):
-    assert isinstance(current_station, BranchStation)
+@mock.patch('pytest_stoq.stoq._install_plugin')
+@mock.patch('pytest_stoq.stoq.bootstrap_suite')
+@pytest.mark.parametrize('quick', (True, False))
+def test_setup_test_enviorment(mock_bootstrap, mock_install_plugin, request, quick):
+    request.config.option.quick_mode = quick
+
+    assert _setup_test_environment(request) is None
+
+    mock_bootstrap.assert_called_once_with(
+        address=None, dbname=None, port=0, username=None, password=None, quick=quick,
+    )
+    mock_install_plugin.assert_not_called()
 
 
-def test_fixture_current_user(current_user):
-    assert isinstance(current_user, LoginUser)
+@mock.patch('pytest_stoq.stoq._install_plugin')
+@mock.patch('pytest_stoq.stoq.bootstrap_suite')
+def test_setup_test_enviorment_install_plugin(mock_bootstrap, mock_install_plugin, request):
+    request.config.option.quick_mode = False
+    request.config.option.plugin_cls = 'plug.In'
+
+    assert _setup_test_environment(request) is None
+
+    mock_bootstrap.assert_called_once_with(
+        address=None, dbname=None, port=0, username=None, password=None, quick=False,
+    )
+    mock_install_plugin.assert_called_once_with('plug.In')
 
 
-def test_fixture_current_branch(current_branch):
-    assert isinstance(current_branch, Branch)
+@mock.patch('pytest_stoq.stoq._install_plugin')
+@mock.patch('pytest_stoq.stoq.bootstrap_suite')
+def test_setup_test_enviorment_do_not_install_plugin(mock_bootstrap, mock_install_plugin, request):
+    request.config.option.quick_mode = True
+    request.config.option.plugin_cls = 'plug.In'
 
+    assert _setup_test_environment(request) is None
 
-def test_fixture_example_creator(example_creator, current_station, current_user, current_branch):
-    assert isinstance(example_creator, ExampleCreator)
-    assert example_creator.current_station == current_station
-    assert example_creator.current_user == current_user
-    assert example_creator.current_branch == current_branch
+    mock_bootstrap.assert_called_once_with(
+        address=None, dbname=None, port=0, username=None, password=None, quick=True,
+    )
+    mock_install_plugin.assert_not_called()

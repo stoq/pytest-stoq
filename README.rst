@@ -27,8 +27,9 @@ You can install "pytest-stoq" via `pip`_ from `PyPI`_::
 Command-line options
 ====================
 
-- ``--skip-db-setup``: pytest-stoq won't setup the database (in case you're using a ready test database)
-- ``--extra-plugins``: extra plugins to enable
+- ``--plugin-cls``: the plugin class path to be installed. Useful for testing stoq plugin projects.
+- ``--quick``: setup stoq using the quick strategy.
+- ``--skip-env-setup``: pytest-stoq won't setup the database, install plugins etc. (in case you already have the test env ready).
 
 Fixtures
 ========
@@ -40,6 +41,7 @@ The plugin provides the following fixtures:
 - ``current_station``
 - ``current_user``
 - ``current_branch``
+- ``current_till``
 
 
 License

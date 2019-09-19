@@ -3,6 +3,7 @@ import os
 
 import stoqlib.api
 from stoqlib.database.testsuite import bootstrap_suite
+from stoqlib.lib.configparser import StoqConfig, register_config
 from stoqlib.lib.pluginmanager import get_plugin_manager
 
 

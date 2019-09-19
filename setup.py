@@ -13,7 +13,7 @@ def read(fname):
 
 setup(
     name="pytest-stoq",
-    version="0.2.0",
+    version="0.3.0",
     author="Stoq Team",
     author_email="stoq-devel@async.com.br",
     maintainer="Stoq Team",
@@ -40,5 +40,5 @@ setup(
         "Operating System :: OS Independent",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
     ],
-    entry_points={"pytest11": ["stoq = pytest_stoq"]},
+    entry_points={"pytest11": ["stoq = pytest_stoq.plugin"]},
 )
