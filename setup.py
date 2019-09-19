@@ -13,7 +13,7 @@ def read(fname):
 
 setup(
     name="pytest-stoq",
-    version="0.3.0",
+    version="0.3.1",
     author="Stoq Team",
     author_email="stoq-devel@async.com.br",
     maintainer="Stoq Team",
@@ -22,8 +22,8 @@ setup(
     url="https://github.com/stoq/pytest-stoq",
     description="A plugin to pytest stoq",
     long_description=read("README.rst"),
-    py_modules=["pytest_stoq"],
-    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*",
+    packages=["pytest_stoq"],
+    python_requires=">=3.4",
     install_requires=["pytest>=3.5.0"],
     classifiers=[
         "Development Status :: 4 - Beta",
