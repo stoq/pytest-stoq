@@ -1,2 +1,3 @@
 https://github.com/stoq/stoq/archive/master.zip
+isort
 pytest

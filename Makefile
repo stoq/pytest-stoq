@@ -18,6 +18,7 @@ clean-docs:
 	@rm -fr docs/build/
 
 pyformat:
+	isort -rc .
 	black . --exclude=docs
 
 lint:
