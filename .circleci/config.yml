@@ -9,7 +9,7 @@ jobs:
   test:
     - run:
         name: Install test dependencies
-        command: 
+        command:
           pip install -r requirements-test.txt
 
     - run:
