@@ -1,0 +1,23 @@
+version: 2
+workflows:
+  version: 2
+  test:
+    jobs:
+      - test
+
+jobs:
+  test:
+    - run:
+        name: Install test dependencies
+        command: 
+          pip install -r requirements-test.txt
+
+    - run:
+        name: Linters
+        command:
+          make pyformat
+
+    - run:
+        name: Run tests
+        command:
+          make test
