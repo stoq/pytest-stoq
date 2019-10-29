@@ -8,7 +8,7 @@ from stoqlib.lib.pluginmanager import get_plugin_manager
 
 
 def _install_plugin(name):
-    plugin_module_name, plugin_cls_name = name.rsplit('.', maxsplit=1)
+    plugin_module_name, plugin_cls_name = name.rsplit(".", maxsplit=1)
     plugin_module = importlib.import_module(plugin_module_name)
     plugin_cls = getattr(plugin_module, plugin_cls_name)
 
@@ -16,7 +16,7 @@ def _install_plugin(name):
     manager = get_plugin_manager()
     plugin_dir = os.path.dirname(plugin_module.__file__)
     plugin_package_name = os.path.basename(plugin_dir)
-    desc_filename = os.path.join(plugin_package_name, '{}.plugin'.format(plugin_name))
+    desc_filename = os.path.join(plugin_package_name, "{}.plugin".format(plugin_name))
     manager.register_plugin_description(desc_filename)
 
     if name not in manager.installed_plugins_names:
@@ -52,6 +52,6 @@ def _setup_test_environment(request):
         quick=quick,
     )
 
-    plugin_cls = request.config.getvalue("plugin_cls") or request.config.inicfg.get('PLUGIN_CLASS')
+    plugin_cls = request.config.getvalue("plugin_cls") or request.config.inicfg.get("PLUGIN_CLASS")
     if not quick and plugin_cls:
         _install_plugin(plugin_cls)

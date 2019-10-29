@@ -15,8 +15,10 @@ def pytest_addoption(parser):
         action="store",
         dest="plugin_cls",
         default=None,
-        help=("Specify the module path to the stoq plugin to be installed. "
-              "e.g. my_plugin.plugin.PluginClass"),
+        help=(
+            "Specify the module path to the stoq plugin to be installed. "
+            "e.g. my_plugin.plugin.PluginClass"
+        ),
     )
     group.addoption(
         "--quick",
