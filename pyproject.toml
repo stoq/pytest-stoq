@@ -1,3 +1,30 @@
 [tool.black]
 line-length = 100
 target-version = ['py35']
+
+[tool.poetry]
+name = "pytest-stoq"
+version = "0.3.1"
+description = "A plugin to pytest stoq"
+
+license = "GPL-3.0"
+
+authors = [
+    "Stoq Team <stoq-devel@async.com.br>"
+]
+
+readme = 'README.rst'  # Markdown files are supported
+
+repository = "https://github.com/stoq/pytest-stoq"
+homepage = "https://github.com/stoq/pytest-stoq"
+
+keywords = ['pytest', 'stoq', 'plugin']
+
+[tool.poetry.dependencies]
+python = "^3.5"
+pytest = "^3.5"
+
+[tool.poetry.dev-dependencies]
+pytest-cov = "^2.4"
+isort = "^4.3"
+flake8 = "^3.7"
