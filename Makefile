@@ -18,13 +18,10 @@ clean-docs:
 	@rm -fr docs/build/
 
 pyformat:
-	isort -rc .
-	black . --exclude=docs
+	pre-commit run -a --hook-stage manual
 
 lint:
-	flake8 . --exclude=docs
+	pre-commit run -a
 
 test:
 	pytest -v --cov=pytest_stoq --cov-report=term-missing
-
-checkall: pyformat lint test

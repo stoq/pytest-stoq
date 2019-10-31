@@ -10,6 +10,10 @@ pytest-stoq
     :target: https://pypi.org/project/pytest-stoq
     :alt: Python versions
 
+.. image:: https://circleci.com/gh/stoq/pytest-stoq.svg?style=svg
+    :target: https://circleci.com/gh/stoq/pytest-stoq
+    :alt: CI Build
+
 A plugin to pytest stoq.
 
 This plugin automatically set up the stoq test environment. It also provide a range of
@@ -42,6 +46,24 @@ The plugin provides the following fixtures:
 - ``current_user``
 - ``current_branch``
 - ``current_till``
+
+
+Local Development
+=================
+
+(optional) Setup your virtualenv using python 3.5+
+
+Install test requirements::
+
+    $ pip install -Ur requirements-test.txt
+
+Setup pre-commit::
+
+    $ pre-commit install
+
+Run tests using pytest::
+
+    $ make test
 
 
 License

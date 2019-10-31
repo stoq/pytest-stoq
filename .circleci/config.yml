@@ -8,14 +8,7 @@ workflows:
 jobs:
   test:
     docker:
-        - image: cprov/stoq:latest
-        - image: circleci/postgres:9.5
-
-    environment:
-        STOQLIB_TEST_HOSTNAME: "localhost"
-        STOQLIB_TEST_DBNAME: "test"
-        STOQLIB_TEST_USERNAME: "postgres"
-        STOQLIB_TEST_PASSWORD: ""
+        - image: circleci/python:3.5.7
 
     steps:
       - checkout
@@ -23,14 +16,12 @@ jobs:
       - run:
           name: Install test dependencies
           command: |
-            git clone https://github.com/stoq/stoq.git
-            easy_install3 pip
-            pip install -U setuptools pip
-            pip install -e stoq --no-deps
-            pip install -r requirements-test.txt
-            pip install -e .
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install flake8 isort pre-commit pytest pytest-cov
 
       - run:
           name: Linters
           command: |
+            . venv/bin/activate
             pre-commit run -a
