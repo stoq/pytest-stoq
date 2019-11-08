@@ -13,6 +13,7 @@ def test_fixture_are_setup_correctly(testdir, fixture_name):
     testdir.makepyfile(code.format(fixture_name))
 
     result = testdir.runpytest("-v", "--skip-env-setup")
+
     result.stdout.fnmatch_lines(["*::test_iculo PASSED*"])
     assert result.ret == 0
 
