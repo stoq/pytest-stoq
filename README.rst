@@ -40,7 +40,7 @@ Fixtures
 
 The plugin provides the following fixtures:
 
-- ``store``: an instance of storm's (ORM) store used to access the database that suffers rollback after each test case
+- ``store``: an instance of storm's (ORM) store used to access the database. It suffers rollback after each test case and cannot be committed, closed or rollbacked manually
 - ``example_creator``: instance creates (inserts) database objects with example/test data
 - ``current_station``
 - ``current_user``

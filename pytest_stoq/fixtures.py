@@ -1,3 +1,5 @@
+from unittest import mock
+
 import pytest
 import stoqlib.api
 from stoqlib.domain.exampledata import ExampleCreator
@@ -14,7 +16,17 @@ def stoq_test_environment(request):
 @pytest.fixture
 def store():
     store = stoqlib.api.new_store()
+    _close = store.close
+    _rollback = store.rollback
+
+    store.close = mock.Mock()
+    store.commit = mock.Mock()
+    store.rollback = mock.Mock()
+
     yield store
+
+    store.close = _close
+    store.rollback = _rollback
     store.rollback()
 
 
