@@ -41,7 +41,7 @@ def _setup_test_environment(request):
     password = os.environ.get("STOQLIB_TEST_PASSWORD")
     port = int(os.environ.get("STOQLIB_TEST_PORT") or 0)
     quick = request.config.getvalue("quick_mode")
-    quick = quick or os.environ.get("STOQLIB_TEST_QUICK", None) is not None
+    quick = quick or bool(os.environ.get("STOQLIB_TEST_QUICK", None))
 
     bootstrap_suite(
         address=hostname,
