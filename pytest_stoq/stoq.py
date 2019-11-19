@@ -27,6 +27,12 @@ def _install_plugin(name):
         manager.activate_plugin(plugin_name)
 
 
+def _to_falsy(value):
+    if value in ('0', '', 'None', 'False', 'false', 'f'):
+        return False
+    return bool(value)
+
+
 def _setup_test_environment(request):
     if request.config.getvalue("skip_env_setup"):
         return
@@ -41,7 +47,7 @@ def _setup_test_environment(request):
     password = os.environ.get("STOQLIB_TEST_PASSWORD")
     port = int(os.environ.get("STOQLIB_TEST_PORT") or 0)
     quick = request.config.getvalue("quick_mode")
-    quick = quick or bool(os.environ.get("STOQLIB_TEST_QUICK", None))
+    quick = quick or _to_falsy(os.environ.get("STOQLIB_TEST_QUICK", None))
 
     bootstrap_suite(
         address=hostname,

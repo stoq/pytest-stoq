@@ -43,6 +43,22 @@ def test_setup_test_enviorment(mock_bootstrap, mock_install_plugin, request, qui
 
 @mock.patch("pytest_stoq.stoq._install_plugin")
 @mock.patch("pytest_stoq.stoq.bootstrap_suite")
+@pytest.mark.parametrize('empty_value', ('None', 'False', 'f', 'false', '', '0'))
+def test_setup_test_enviorment_quick_env_var_empty(
+    mock_bootstrap, mock_install_plugin, monkeypatch, request, empty_value
+):
+    monkeypatch.setenv('STOQLIB_TEST_QUICK', empty_value)
+
+    assert _setup_test_environment(request) is None
+
+    mock_bootstrap.assert_called_once_with(
+        address=None, dbname=None, port=0, username=None, password=None, quick=False,
+    )
+    mock_install_plugin.assert_not_called()
+
+
+@mock.patch("pytest_stoq.stoq._install_plugin")
+@mock.patch("pytest_stoq.stoq.bootstrap_suite")
 def test_setup_test_enviorment_install_plugin(mock_bootstrap, mock_install_plugin, request):
     request.config.option.quick_mode = False
     request.config.option.plugin_cls = "plug.In"

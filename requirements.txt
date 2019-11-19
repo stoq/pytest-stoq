@@ -1,2 +1,1 @@
-https://github.com/stoq/stoq/archive/master.zip
 pytest
