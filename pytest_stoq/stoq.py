@@ -19,11 +19,11 @@ def _install_plugin(name):
     desc_filename = os.path.join(plugin_package_name, "{}.plugin".format(plugin_name))
     manager.register_plugin_description(desc_filename)
 
-    if name not in manager.installed_plugins_names:
+    if plugin_name not in manager.installed_plugins_names:
         with stoqlib.api.new_store() as store:
             manager.install_plugin(store, plugin_name)
 
-    if name not in manager.active_plugins_names:
+    if plugin_name not in manager.active_plugins_names:
         manager.activate_plugin(plugin_name)
 
 
@@ -59,5 +59,5 @@ def _setup_test_environment(request):
     )
 
     plugin_cls = request.config.getvalue("plugin_cls") or request.config.inicfg.get("PLUGIN_CLASS")
-    if not quick and plugin_cls:
+    if plugin_cls:
         _install_plugin(plugin_cls)
