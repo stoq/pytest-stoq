@@ -5,6 +5,7 @@ from stoqlib.domain.person import Branch, LoginUser
 from stoqlib.domain.sale import Sale
 from stoqlib.domain.station import BranchStation
 from stoqlib.domain.till import Till
+from stoqlib.lib.parameters import ParameterAccess
 from storm.store import Store
 
 
@@ -54,3 +55,7 @@ def test_example_creator(example_creator, current_station, current_user, current
     assert example_creator.current_station == current_station
     assert example_creator.current_user == current_user
     assert example_creator.current_branch == current_branch
+
+
+def test_sysparam(sysparam):
+    assert isinstance(sysparam, ParameterAccess)

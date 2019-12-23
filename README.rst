@@ -42,6 +42,7 @@ The plugin provides the following fixtures:
 
 - ``store``: an instance of storm's (ORM) store used to access the database. It suffers rollback after each test case and cannot be committed, closed or rollbacked manually
 - ``example_creator``: instance creates (inserts) database objects with example/test data
+- ``sysparam`` a sysparam instance that clear its cache automatically after each use
 - ``current_station``
 - ``current_user``
 - ``current_branch``
