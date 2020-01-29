@@ -34,6 +34,15 @@ Command-line options
 - ``--plugin-cls``: the plugin class path to be installed. Useful for testing stoq plugin projects.
 - ``--quick``: setup stoq using the quick strategy.
 - ``--skip-env-setup``: pytest-stoq won't setup the database, install plugins etc. (in case you already have the test env ready).
+- ``--stoq-plugins``: a comma-separated list of stoq plugin names to be installed. Useful for testing stoq applications that uses plugins (such as stoq desktop and stoq server).
+
+
+Config file options
+===================
+
+- ``PLUGIN_CLASS``: same as ``--plugin-cls``
+- ``STOQ_PLUGINS``: same as ``--stoq-plugins``
+
 
 Fixtures
 ========

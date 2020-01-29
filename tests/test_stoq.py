@@ -2,7 +2,7 @@ from unittest import mock
 
 import pytest
 
-from pytest_stoq.stoq import _install_plugin, _setup_test_environment
+from pytest_stoq.stoq import _get_plugin_configs, _install_plugin, _setup_test_environment
 
 
 @mock.patch("pytest_stoq.stoq.stoqlib.api.new_store")
@@ -55,13 +55,13 @@ def test_install_plugin_do_not_install_or_active_twice(
 @mock.patch("pytest_stoq.stoq._install_plugin")
 @mock.patch("pytest_stoq.stoq.bootstrap_suite")
 @pytest.mark.parametrize("quick", (True, False))
-def test_setup_test_enviorment(mock_bootstrap, mock_install_plugin, request, quick):
-    request.config.option.quick_mode = quick
+def test_setup_test_enviorment(mock_bootstrap, mock_install_plugin, request, quick, monkeypatch):
+    monkeypatch.setattr(request.config.option, 'quick_mode', quick)
 
     assert _setup_test_environment(request) is None
 
     mock_bootstrap.assert_called_once_with(
-        address=None, dbname=None, port=0, username=None, password=None, quick=quick,
+        address=None, dbname=None, port=0, username=None, password=None, quick=quick, extra_plugins=None,
     )
     mock_install_plugin.assert_not_called()
 
@@ -77,7 +77,7 @@ def test_setup_test_enviorment_quick_env_var_empty(
     assert _setup_test_environment(request) is None
 
     mock_bootstrap.assert_called_once_with(
-        address=None, dbname=None, port=0, username=None, password=None, quick=False,
+        address=None, dbname=None, port=0, username=None, password=None, quick=False, extra_plugins=None,
     )
     mock_install_plugin.assert_not_called()
 
@@ -85,13 +85,44 @@ def test_setup_test_enviorment_quick_env_var_empty(
 @mock.patch("pytest_stoq.stoq._install_plugin")
 @mock.patch("pytest_stoq.stoq.bootstrap_suite")
 @pytest.mark.parametrize('is_quick', (True, False))
-def test_setup_test_enviorment_install_plugin(mock_bootstrap, mock_install_plugin, is_quick, request):
-    request.config.option.quick_mode = is_quick
-    request.config.option.plugin_cls = "plug.In"
+def test_setup_test_enviorment_install_plugin(mock_bootstrap, mock_install_plugin, is_quick, request, monkeypatch):
+    monkeypatch.setattr(request.config.option, 'quick_mode', is_quick)
+    monkeypatch.setattr(request.config.option, 'plugin_cls', 'plug.In')
 
     assert _setup_test_environment(request) is None
 
     mock_bootstrap.assert_called_once_with(
-        address=None, dbname=None, port=0, username=None, password=None, quick=is_quick,
+        address=None, dbname=None, port=0, username=None, password=None, quick=is_quick, extra_plugins=None,
     )
     mock_install_plugin.assert_called_once_with("plug.In")
+
+
+def test_get_plugin_configs_empty(pytestconfig):
+    config = _get_plugin_configs(pytestconfig)
+
+    assert config['plugin_cls'] is None
+    assert config['quick_mode'] is None
+    assert config['skip_env_setup'] is None
+    assert config['extra_plugins'] is None
+
+
+def test_get_plugin_configs(pytestconfig, monkeypatch):
+    monkeypatch.setattr(pytestconfig.option, 'plugin_cls', 'foo.bar.Plug.In')
+    monkeypatch.setattr(pytestconfig.option, 'quick_mode', True)
+    monkeypatch.setattr(pytestconfig.option, 'skip_env_setup', False)
+    monkeypatch.setitem(pytestconfig.inicfg, 'STOQ_PLUGINS', 'stoq-plugin,other-plugin')
+
+    config = _get_plugin_configs(pytestconfig)
+
+    assert config['plugin_cls'] == 'foo.bar.Plug.In'
+    assert config['quick_mode'] is True
+    assert config['skip_env_setup'] is False
+    assert config['extra_plugins'] == ['stoq-plugin', 'other-plugin']
+
+
+def test_get_plugin_configs_stoq_plugins(pytestconfig, monkeypatch):
+    monkeypatch.setattr(pytestconfig.option, 'stoq_plugins', 'stoq-plugin')
+
+    config = _get_plugin_configs(pytestconfig)
+
+    assert config['extra_plugins'] == ['stoq-plugin']

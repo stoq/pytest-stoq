@@ -27,3 +27,13 @@ def pytest_addoption(parser):
         default=None,
         help="Quick database setup mode. Use with caution.",
     )
+    group.addoption(
+        "--stoq-plugins",
+        action="store",
+        dest="stoq_plugins",
+        default=None,
+        help=(
+            "Specify a comma-separated list of stoq plugin names to be installled. "
+            "e.g. nfce,passbook"
+        ),
+    )
