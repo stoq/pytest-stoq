@@ -61,7 +61,7 @@ def test_setup_test_enviorment(mock_bootstrap, mock_install_plugin, request, qui
     assert _setup_test_environment(request) is None
 
     mock_bootstrap.assert_called_once_with(
-        address=None, dbname=None, port=0, username=None, password=None, quick=quick, extra_plugins=None,
+        address=None, dbname=None, port=0, username=None, password=None, quick=quick, extra_plugins=[],
     )
     mock_install_plugin.assert_not_called()
 
@@ -77,7 +77,7 @@ def test_setup_test_enviorment_quick_env_var_empty(
     assert _setup_test_environment(request) is None
 
     mock_bootstrap.assert_called_once_with(
-        address=None, dbname=None, port=0, username=None, password=None, quick=False, extra_plugins=None,
+        address=None, dbname=None, port=0, username=None, password=None, quick=False, extra_plugins=[],
     )
     mock_install_plugin.assert_not_called()
 
@@ -92,9 +92,32 @@ def test_setup_test_enviorment_install_plugin(mock_bootstrap, mock_install_plugi
     assert _setup_test_environment(request) is None
 
     mock_bootstrap.assert_called_once_with(
-        address=None, dbname=None, port=0, username=None, password=None, quick=is_quick, extra_plugins=None,
+        address=None, dbname=None, port=0, username=None, password=None, quick=is_quick, extra_plugins=[],
     )
     mock_install_plugin.assert_called_once_with("plug.In")
+
+
+@mock.patch("pytest_stoq.stoq.get_plugin_manager")
+@mock.patch("pytest_stoq.stoq.bootstrap_suite")
+@pytest.mark.parametrize('raw_plugins,extra_plugins', (
+    (None, []),
+    ("plugin1", ["plugin1"]),
+    ("plugin1,plugin2", ["plugin1", "plugin2"]),
+))
+def test_setup_test_environment_activate_plugin(mock_bootstrap, mock_get_plugin_manager, raw_plugins, extra_plugins, request, monkeypatch):
+    mock_activate_plugin = mock_get_plugin_manager.return_value.activate_plugin
+    monkeypatch.setattr(request.config.option, 'stoq_plugins', raw_plugins)
+
+    assert _setup_test_environment(request) is None
+
+    mock_bootstrap.assert_called_once_with(
+        address=None, dbname=None, port=0, username=None, password=None, quick=False, extra_plugins=extra_plugins,
+    )
+    mock_get_plugin_manager.assert_called_once_with()
+
+    assert mock_activate_plugin.call_count == len(extra_plugins)
+    for plugin_name in extra_plugins:
+        mock_activate_plugin.assert_any_call(plugin_name)
 
 
 def test_get_plugin_configs_empty(pytestconfig):
@@ -103,7 +126,7 @@ def test_get_plugin_configs_empty(pytestconfig):
     assert config['plugin_cls'] is None
     assert config['quick_mode'] is None
     assert config['skip_env_setup'] is None
-    assert config['extra_plugins'] is None
+    assert config['extra_plugins'] == []
 
 
 def test_get_plugin_configs(pytestconfig, monkeypatch):

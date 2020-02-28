@@ -36,6 +36,8 @@ def _setup_test_environment(request):
     stoq_config.load_default()
     register_config(stoq_config)
 
+    extra_plugins = plugin_config['extra_plugins']
+
     quick = plugin_config['quick_mode'] or _to_falsy(os.environ.get("STOQLIB_TEST_QUICK", None))
     bootstrap_suite(
         address=os.environ.get("STOQLIB_TEST_HOSTNAME"),
@@ -44,17 +46,21 @@ def _setup_test_environment(request):
         username=os.environ.get("STOQLIB_TEST_USERNAME"),
         password=os.environ.get("STOQLIB_TEST_PASSWORD"),
         quick=quick,
-        extra_plugins=plugin_config['extra_plugins'],
+        extra_plugins=extra_plugins,
     )
 
     plugin_cls = plugin_config['plugin_cls']
     if plugin_cls:
         _install_plugin(plugin_cls)
 
+    manager = get_plugin_manager()
+    for plugin_name in extra_plugins:
+        manager.activate_plugin(plugin_name)
+
 
 def _get_plugin_configs(config):
     extra_plugins = config.getvalue("stoq_plugins") or config.inicfg.get("STOQ_PLUGINS", '')
-    extra_plugins = extra_plugins.split(',') if extra_plugins else None
+    extra_plugins = extra_plugins.split(',') if extra_plugins else []
     return {
         'plugin_cls': config.getvalue("plugin_cls") or config.inicfg.get("PLUGIN_CLASS"),
         'quick_mode': config.getvalue("quick_mode"),
