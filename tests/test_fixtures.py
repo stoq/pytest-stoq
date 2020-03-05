@@ -1,5 +1,6 @@
 from unittest import mock
 
+from stoqlib import api
 from stoqlib.domain.exampledata import ExampleCreator
 from stoqlib.domain.person import Branch, LoginUser
 from stoqlib.domain.sale import Sale
@@ -17,6 +18,11 @@ def test_store_mocked(store):
     assert isinstance(store.close, mock.Mock)
     assert isinstance(store.commit, mock.Mock)
     assert isinstance(store.rollback, mock.Mock)
+
+
+def test_new_store(mock_new_store, store):
+    with api.new_store() as new_store:
+        assert new_store is store
 
 
 def test_store_does_not_commit(testdir, store):

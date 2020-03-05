@@ -56,6 +56,7 @@ The plugin provides the following fixtures:
 - ``current_user``
 - ``current_branch``
 - ``current_till``
+- ``mock_new_store``: replace ``stoqlib.api.new_store()`` with the ``store`` fixture
 
 
 Local Development
