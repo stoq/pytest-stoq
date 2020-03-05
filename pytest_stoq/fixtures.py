@@ -52,6 +52,11 @@ def current_till(store, example_creator, current_station):
 
 
 @pytest.fixture
+def mock_new_store(monkeypatch, store):
+    monkeypatch.setattr('stoqlib.api.new_store', mock.Mock(return_value=store))
+
+
+@pytest.fixture
 def example_creator(store, current_station, current_user, current_branch):
     creator = ExampleCreator()
     creator.set_store(store)
