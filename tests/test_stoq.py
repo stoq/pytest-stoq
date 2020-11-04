@@ -19,9 +19,9 @@ def test_install_plugin(mock_get_plugin_manager, mock_import_module, mock_new_st
 
     assert _install_plugin("plugin.pluginho") is None
 
-    mock_get_plugin_manager.assert_called_once_with()
+    assert mock_get_plugin_manager.call_count == 2
     mock_plugin_manager.register_plugin_description.assert_called_once_with(
-        "pluginho/pluginho.plugin"
+        "/path/to/pluginho/pluginho.plugin"
     )
     mock_plugin_manager.install_plugin.assert_called_once_with(mock_store, "pluginho")
     mock_plugin_manager.activate_plugin.assert_called_once_with("pluginho")
@@ -44,9 +44,9 @@ def test_install_plugin_do_not_install_or_active_twice(
 
     assert _install_plugin("plugin.pluginho") is None
 
-    mock_get_plugin_manager.assert_called_once_with()
+    assert mock_get_plugin_manager.call_count == 2
     mock_plugin_manager.register_plugin_description.assert_called_once_with(
-        "pluginho/pluginho.plugin"
+        "/path/to/pluginho/pluginho.plugin"
     )
     mock_plugin_manager.install_plugin.assert_not_called()
     mock_plugin_manager.activate_plugin.assert_not_called()
@@ -61,7 +61,7 @@ def test_setup_test_enviorment(mock_bootstrap, mock_install_plugin, request, qui
     assert _setup_test_environment(request) is None
 
     mock_bootstrap.assert_called_once_with(
-        address=None, dbname=None, port=0, username=None, password=None, quick=quick, extra_plugins=[],
+        address=None, dbname=None, port=0, username=None, password=None, quick=quick,
     )
     mock_install_plugin.assert_not_called()
 
@@ -77,7 +77,7 @@ def test_setup_test_enviorment_quick_env_var_empty(
     assert _setup_test_environment(request) is None
 
     mock_bootstrap.assert_called_once_with(
-        address=None, dbname=None, port=0, username=None, password=None, quick=False, extra_plugins=[],
+        address=None, dbname=None, port=0, username=None, password=None, quick=False,
     )
     mock_install_plugin.assert_not_called()
 
@@ -92,28 +92,32 @@ def test_setup_test_enviorment_install_plugin(mock_bootstrap, mock_install_plugi
     assert _setup_test_environment(request) is None
 
     mock_bootstrap.assert_called_once_with(
-        address=None, dbname=None, port=0, username=None, password=None, quick=is_quick, extra_plugins=[],
+        address=None, dbname=None, port=0, username=None, password=None, quick=is_quick,
     )
     mock_install_plugin.assert_called_once_with("plug.In")
 
 
+@mock.patch("pytest_stoq.stoq._register_plugin")
 @mock.patch("pytest_stoq.stoq.get_plugin_manager")
 @mock.patch("pytest_stoq.stoq.bootstrap_suite")
 @pytest.mark.parametrize('raw_plugins,extra_plugins', (
-    (None, []),
     ("plugin1", ["plugin1"]),
     ("plugin1,plugin2", ["plugin1", "plugin2"]),
 ))
-def test_setup_test_environment_activate_plugin(mock_bootstrap, mock_get_plugin_manager, raw_plugins, extra_plugins, request, monkeypatch):
+def test_setup_test_environment_activate_plugin(
+        mock_bootstrap, mock_get_plugin_manager, register_plugin_mock,
+        raw_plugins, extra_plugins, request, monkeypatch
+):
     mock_activate_plugin = mock_get_plugin_manager.return_value.activate_plugin
     monkeypatch.setattr(request.config.option, 'stoq_plugins', raw_plugins)
 
     assert _setup_test_environment(request) is None
 
     mock_bootstrap.assert_called_once_with(
-        address=None, dbname=None, port=0, username=None, password=None, quick=False, extra_plugins=extra_plugins,
+        address=None, dbname=None, port=0, username=None, password=None, quick=False,
     )
     mock_get_plugin_manager.assert_called_once_with()
+    register_plugin_mock.assert_any_call("plugin1")
 
     assert mock_activate_plugin.call_count == len(extra_plugins)
     for plugin_name in extra_plugins:
